@@ -22,9 +22,11 @@ def FlaskData():
 
     dataResult = requests.get(dataURL)
 
+    # coronaData.json 파일 저장
     with open("coronaData.json","w", encoding="utf-8") as writeFile:
          json.dump(dataResult.text, writeFile, ensure_ascii=False, indent='4', separators=(',', ': '))
-
+            
+    # dataResult 화면 출력
     return json.loads(dataResult.text)
 
 
