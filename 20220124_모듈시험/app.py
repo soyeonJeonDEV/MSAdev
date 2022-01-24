@@ -10,6 +10,7 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True # json 깔끔하게 출력
 def FlaskLab(): 
     return "Flask 데이터 응답" 
 
+# localhost:5000/data1 입력시 '강남구 코로나 위탁의료기관 조회' json 파일 저장 & 화면 출력
 @app.route("/data1")
 def FlaskData():
     keyValue = r"p7zGkmRh2x32vu%2BuvThZkvgWgBnug8qu2YB%2F3AQHyOERlV3SqETp1UPGubmd5La2plHZDURFlgotkT1ctC6b2g%3D%3D"
