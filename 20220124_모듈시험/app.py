@@ -10,7 +10,6 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 def FlaskLab(): 
     return "Flask 데이터 응답" 
 
-#localhost:5000/data1 입력 후 json 파일 저장
 @app.route("/data1")
 def FlaskData():
     keyValue = r"p7zGkmRh2x32vu%2BuvThZkvgWgBnug8qu2YB%2F3AQHyOERlV3SqETp1UPGubmd5La2plHZDURFlgotkT1ctC6b2g%3D%3D"
@@ -18,13 +17,13 @@ def FlaskData():
 
     dataURL = "http://api.odcloud.kr/api/apnmOrg/v1/list?"
     dataURL += "page=" + str(1) + "&perPage=" + str(10)
-    dataURL += "&cond" + r"%5BorgZipaddr%3A%3ALIKE%5D=%EA%B0%95%EB%82%A8%EA%B5%AC"
+    dataURL += "&cond" + r"%5BorgZipaddr%3A%3ALIKE%5D=%EA%B0%95%EB%82%A8%EA%B5%AC" # 강남구
     dataURL += "&serviceKey=" + keyValue
 
     dataResult = requests.get(dataURL)
 
     with open("coronaData.json","w", encoding="utf-8") as writeFile:
-         json.dump(dataResult.text, writeFile, ensure_ascii=False, indent='\t')
+         json.dump(dataResult.text, writeFile, ensure_ascii=False, indent='4', separators=(',', ': '))
 
     return json.loads(dataResult.text)
 
