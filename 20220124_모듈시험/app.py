@@ -3,8 +3,8 @@ import json
 import requests
 
 app = Flask(__name__) 
-app.config['JSON_AS_ASCII'] = False
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+app.config['JSON_AS_ASCII'] = False # 한글 변환
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True # json 깔끔하게 출력
 
 @app.route("/") 
 def FlaskLab(): 
