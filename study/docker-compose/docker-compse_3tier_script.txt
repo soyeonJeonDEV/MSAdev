@@ -1,0 +1,107 @@
+setenforce 0
+sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+==== DB용 ====
+mkdir -p /docker/db/conf.d
+mkdir -p /docker/db/data
+
+===한글지원 설정파일=============
+cat <<EOF | sudo tee /docker/db/conf.d/my.cnf
+
+[client]
+default-character-set = utf8mb4
+
+[mysql]
+default-character-set = utf8mb4
+
+[mysqld]
+character-set-client-handshake = FALSE
+character-set-server           = utf8mb4
+collation-server               = utf8mb4_unicode_ci
+EOF
+
+
+=====DB 환경변수 파일 생성=====================
+mkdir -p /docker/db/env
+cat <<EOF | sudo tee /docker/db/env/.env
+MYSQL_HOST=mysql-svc
+MYSQL_PORT=3306
+MYSQL_ROOT_PASSWORD=frodo
+MYSQL_DATABASE=frodo
+MYSQL_USER=frodo
+MYSQL_PASSWORD=frodo
+MYSQL_ROOT_HOST='%'
+EOF
+
+======NGINX에서 쓸 디렉토리 생성=========
+mkdir -p /docker/nginx/log
+mkdir -p /docker/nginx/conf
+
+==== NGINX 설정 파일 생성(was.conf)
+cat <<EOF| sudo tee /docker/nginx/conf/was.conf
+upstream was {
+    ip_hash;
+    server mywas:8080;
+}
+
+server {
+    listen 80;
+    server_name mynginx;
+    access_log /var/log/nginx/test1.log;
+
+location / {
+
+        #root /usr/share/nginx/html;
+        index index.html index.htm index.jsp;
+        proxy_pass http://was;
+    }
+
+    location ~ \.(css|js|jpg|jpeg|gif|htm|html|swf)$ {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+    }
+
+    location ~ \.(jsp|do)$ {
+    index index.jsp;
+        proxy_pass http://was;
+   
+    proxy_redirect off;
+    charset utf-8;
+    }
+
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+}
+EOF
+
+
+====== docker-compose.yml 파일 작성 =========
+mkdir -p /work/3tire
+cat <<EOF| sudo tee /work/3tire/docker-compose.yml
+
+version: "3"
+
+services:
+  mysql-svc:
+    image: mariadb:10.3
+    volumes:
+      - /docker/db/conf.d:/etc/mysql/conf.d
+      - /docker/db/data:/var/lib/mysql
+    env_file: /docker/db/env/.env
+    environment:
+      TZ: Asia/Seoul
+
+  mywas:
+    image: hifrodo/was:v2002
+    restart: always
+
+  mynginx:
+    image: hifrodo/msa:v3
+    volumes:
+      - /docker/nginx/conf:/etc/nginx/conf.d
+      - /docker/nginx/log:/var/log/nginx
+    ports:
+      - "80:80"
+EOF
